@@ -1,0 +1,16 @@
+name: DynamicAtmosphere
+version: '1.0.0-bukkit'
+main: github.staff.DynamicAtmosphere
+api-version: '1.13'
+author: Not_staff
+website: https://sstudiosdev.github.io/
+
+commands:
+  reload:
+    description: Reload the config.yml configuration
+    usage: /dy reload
+
+permissions:
+  dynamicAt.reload:
+    description: It gives you the permission to execute the /eb reload command.
+    default: false

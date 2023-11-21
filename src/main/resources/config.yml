@@ -1,0 +1,26 @@
+# ██████  ██    ██ ███    ██  █████  ███    ███ ██  ██████   █████  ████████
+# ██   ██  ██  ██  ████   ██ ██   ██ ████  ████ ██ ██       ██   ██    ██
+# ██   ██   ████   ██ ██  ██ ███████ ██ ████ ██ ██ ██       ███████    ██
+# ██   ██    ██    ██  ██ ██ ██   ██ ██  ██  ██ ██ ██       ██   ██    ██
+# ██████     ██    ██   ████ ██   ██ ██      ██ ██  ██████  ██   ██    ██
+#
+# Configuration file. Done with ❤ by Notstaff.
+# For support: https://discord.gg/tnVKckUF
+
+# The prefix is updated every time the server
+# is restarted or powered on and remember to read the /dy reload message.
+
+prefix: "&3&lDynamicAt" #Prefix that comes by default you can customize it without any problem.
+
+############################################################
+# +------------------------------------------------------+ #
+# |                       Message                        | #
+# +------------------------------------------------------+ #
+############################################################
+
+# Placeholder At the moment the plugin,
+# is not available with the placeholderApi.
+
+# %dy-player% - Shows you the player's name
+
+no-permission-message: "&cSorry, but you, %dy-player%, do not have permission to execute this command."
