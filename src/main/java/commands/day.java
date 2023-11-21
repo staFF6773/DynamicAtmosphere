@@ -1,5 +1,6 @@
 package commands;
 
+import github.staff.DynamicAtmosphere;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -7,12 +8,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class Day implements CommandExecutor {
-    private final JavaPlugin plugin;
+    private final DynamicAtmosphere plugin;
 
-    public Day(JavaPlugin plugin) {
+    public Day(DynamicAtmosphere plugin) {
         this.plugin = plugin;
     }
 
@@ -25,14 +25,40 @@ public class Day implements CommandExecutor {
                 // Obtener el mundo actual
                 World world = ((Player) sender).getWorld();
 
-                // Establecer el tiempo del día a la mañana (0 ticks)
-                world.setTime(0);
+                long time = world.getTime();
+                String timeOfDay;
+
+                if (time >= 0 && time < 12000){
+                    timeOfDay = "Day";
+                } else {
+                    timeOfDay = "Night";
+
+                    world.setTime(0);
+                }
+
+                // Obtener el mensaje de tiempo del día desde la configuración
+                String timeSetMessage = plugin.getConfig().getString("time-set-message");
+                // Si no se encuentra el mensaje en la configuración, usa uno por defecto
+                if (timeSetMessage == null) {
+                    timeSetMessage = "&aThe time of day has been set at %dy-time%%.";
+                }
+
+                // Reemplazar la variable %time% con el momento del día actual
+                timeSetMessage = timeSetMessage.replace("%dy-time%", timeOfDay);
 
                 // Enviar mensaje de confirmación
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&3DynamicAt &aEl tiempo del día ha sido establecido a la mañana."));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', DynamicAtmosphere.prefix + " " + timeSetMessage));
             } else {
-                // Mensaje de falta de permisos
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cNo tienes permiso para ejecutar este comando."));
+                // Obtén el mensaje desde la configuración
+                String noPermissionMessage = plugin.getConfig().getString("no-permission-message");
+                // Si no se encuentra el mensaje en la configuración, usa uno por defecto
+                if (noPermissionMessage == null) {
+                    noPermissionMessage = "&cSorry, but you, %dy-player%, do not have permission to execute this command.";
+                }
+                // Reemplaza "%player%" con el nombre del jugador
+                noPermissionMessage = noPermissionMessage.replace("%dy-player%", sender.getName());
+                // Envía el mensaje de falta de permisos
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', DynamicAtmosphere.prefix + " " + noPermissionMessage));
             }
         } else {
             // Mensaje si el comando es ejecutado por una entidad que no sea jugador o consola
