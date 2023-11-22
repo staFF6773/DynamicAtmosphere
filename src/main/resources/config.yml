@@ -27,10 +27,10 @@ prefix: "&3&lDynamicAt" #Prefix that comes by default you can customize it witho
 
 no-permission-message: "&cSorry, but you, %dy-player%, do not have permission to execute this command."
 time-set-message: "&aThe time of day has been set at %dy-time-en%."
-vote-success: "&aHas votado por %weather%!"
-cooldown-message: "&cDebes esperar %time% segundos antes de volver a votar."
-votes-left: "&eFaltan %votes% votos para cambiar el clima."
-unknown-weather: "&cTipo de clima no reconocido: %weather%"
+vote-success: "&aYou have voted for %weather%!"
+cooldown-message: "&cYou must wait %time% seconds before voting again."
+votes-left: "&eLack of %votes% votes to change the weather."
+unknown-weather: "&cUnrecognized climate type: %weather%"
 
 ############################################################
 # +------------------------------------------------------+ #
@@ -38,5 +38,5 @@ unknown-weather: "&cTipo de clima no reconocido: %weather%"
 # +------------------------------------------------------+ #
 ############################################################
 
-cooldown-time: 60 # Tiempo de cooldown en segundos
-vote-threshold: 5 # Umbral necesario de votos para cambiar el clima
+cooldown-time: 60 # Cooldown time in seconds to return to vote
+vote-threshold: 5 # Votes needed to change the climate
