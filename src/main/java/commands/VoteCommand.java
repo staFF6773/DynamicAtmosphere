@@ -21,14 +21,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class VoteCommand implements CommandExecutor, Listener {
     private final DynamicAtmosphere plugin;
     private final Map<Player, WeatherVote> playerVotes;
+    private final Map<String, Integer> voteCount;
+    private final Map<UUID, Long> voteCooldown;
 
+    private final int voteThreshold = 1;
+
+    private final long cooldownTime = 60 * 1000; // Tiempo de cooldown en milisegundos (60 segundos en este ejemplo)
     public VoteCommand(DynamicAtmosphere plugin) {
         this.plugin = plugin;
         this.playerVotes = new HashMap<>();
+        this.voteCount = new HashMap<>();
+        this.voteCooldown = new HashMap<>();
         // Registra el Listener en el constructor para manejar los eventos
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
@@ -105,7 +113,6 @@ public class VoteCommand implements CommandExecutor, Listener {
         }
     }
 
-    // Manejar clics en el menú de votación
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getView().getTitle().equals("Votación de Clima")) {
@@ -113,9 +120,16 @@ public class VoteCommand implements CommandExecutor, Listener {
 
             if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
                 Player player = (Player) event.getWhoClicked();
-                ItemStack clickedItem = event.getCurrentItem();
+                UUID playerUUID = player.getUniqueId();
 
-                // Obtener el tipo de voto asociado al ítem
+                // Verificar el cooldown
+                if (voteCooldown.containsKey(playerUUID) && System.currentTimeMillis() - voteCooldown.get(playerUUID) < cooldownTime) {
+                    long timeLeft = (cooldownTime - (System.currentTimeMillis() - voteCooldown.get(playerUUID))) / 1000;
+                    player.sendMessage(ChatColor.RED + "Debes esperar " + timeLeft + " segundos antes de volver a votar.");
+                    return;
+                }
+
+                ItemStack clickedItem = event.getCurrentItem();
                 WeatherVote weatherVote = playerVotes.get(player);
 
                 if (weatherVote != null) {
@@ -123,11 +137,23 @@ public class VoteCommand implements CommandExecutor, Listener {
                     weatherVote.setVoteType(voteType);
 
                     player.sendMessage(ChatColor.GREEN + "Has votado por " + voteType + "!");
+                    int currentVotes = voteCount.getOrDefault(voteType, 0) + 1;
+                    voteCount.put(voteType, currentVotes);
 
-                    executeWeatherCommand(player, voteType);
+                    // Actualizar el cooldown del jugador
+                    voteCooldown.put(playerUUID, System.currentTimeMillis());
+
+                    // Verificar si se alcanzó el umbral de votos para cambiar el clima
+                    if (currentVotes >= voteThreshold) {
+                        // Restablecer el contador y cambiar el clima
+                        voteCount.put(voteType, 0);
+                        executeWeatherCommand(player, voteType);
+                    } else {
+                        int votesLeft = voteThreshold - currentVotes;
+                        player.sendMessage(ChatColor.YELLOW + "Faltan " + votesLeft + " votos para cambiar el clima.");
+                    }
                 }
 
-                // Cerrar el inventario después del voto
                 player.closeInventory();
             }
         }
@@ -137,7 +163,6 @@ public class VoteCommand implements CommandExecutor, Listener {
         ItemMeta meta = item.getItemMeta();
         if (meta != null && meta.hasDisplayName()) {
             String displayName = ChatColor.stripColor(meta.getDisplayName().toLowerCase());
-            // Ajusta esto según la estructura del display name de tus ítems
             if (displayName.contains("despejado")) {
                 return "sunny";
             } else if (displayName.contains("lluvia")) {
@@ -151,10 +176,8 @@ public class VoteCommand implements CommandExecutor, Listener {
 
 
     private void executeWeatherCommand(Player player, String voteType) {
-        // Obtener el mundo actual del jugador
         World world = player.getWorld();
 
-        // Ejecutar el comando según el tipo de clima
         switch (voteType.toLowerCase()) {
             case "sunny":
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "weather clear");
