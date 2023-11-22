@@ -69,6 +69,7 @@ public final class DynamicAtmosphere extends JavaPlugin implements Listener {
     }
 
     public void registerEvents() {
+        getServer().getPluginManager().registerEvents(new VoteCommand(this), this);
     }
 
     public static DynamicAtmosphere getplugin() {
