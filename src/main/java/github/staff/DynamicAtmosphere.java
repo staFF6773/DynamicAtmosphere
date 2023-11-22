@@ -1,6 +1,6 @@
 package github.staff;
 
-import commands.reload;
+import commands.*;
 import manager.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,9 +35,9 @@ public final class DynamicAtmosphere extends JavaPlugin implements Listener {
         mycmd.sendMessage(ChatUtils.getColoredMessage("     &3_____"));
         mycmd.sendMessage(ChatUtils.getColoredMessage("   &3|      \\  &3DynamicAt &7v1.0.0        "));
         mycmd.sendMessage(ChatUtils.getColoredMessage("   &3|  |  | |  &7Running on Bukkit - Paper  "));
-        mycmd.sendMessage(ChatUtils.getColoredMessage("   &3|  |  | |  "));
+        mycmd.sendMessage(ChatUtils.getColoredMessage("   &3|  |  | |    &fPlugin by &3[srstaff_tv]"));
         mycmd.sendMessage(ChatUtils.getColoredMessage("   &3|  |__| |  "));
-        mycmd.sendMessage(ChatUtils.getColoredMessage("   &3|_____/    "));
+        mycmd.sendMessage(ChatUtils.getColoredMessage("   &3|_____ /    "));
         mycmd.sendMessage(ChatUtils.getColoredMessage(""));
         mycmd.sendMessage(ChatUtils.getColoredMessage("&7Commands successfully loaded"));
 
@@ -58,6 +58,11 @@ public final class DynamicAtmosphere extends JavaPlugin implements Listener {
 
     public void registerCommands() {
         this.getCommand("reload").setExecutor(new reload(this));
+        this.getCommand("Day").setExecutor(new Day(this));
+        this.getCommand("Night").setExecutor(new Night(this));
+        this.getCommand("Rain").setExecutor(new rain(this));
+        this.getCommand("Sun").setExecutor(new Sun(this));
+        this.getCommand("Storm").setExecutor(new Storm(this));
     }
 
     public void registerEvents() {
