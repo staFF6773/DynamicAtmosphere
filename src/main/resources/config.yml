@@ -22,5 +22,8 @@ prefix: "&3&lDynamicAt" #Prefix that comes by default you can customize it witho
 # is not available with the placeholderApi.
 
 # %dy-player% - Shows you the player's name
+# %dy-time-en% - Displays the time it was set to in English
+# %dy-time-es% - Displays the time it was set to in Spanish
 
 no-permission-message: "&cSorry, but you, %dy-player%, do not have permission to execute this command."
+time-set-message: "&aThe time of day has been set at %dy-time-en%."
