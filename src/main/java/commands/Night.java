@@ -31,11 +31,12 @@ public class Night implements CommandExecutor {
                 String timeSetMessage = plugin.getConfig().getString("time-set-message");
                 // Si no se encuentra el mensaje en la configuración, usa uno por defecto
                 if (timeSetMessage == null) {
-                    timeSetMessage = "&aThe time of day has been set at %dy-time%%.";
+                    timeSetMessage = "&aThe time of day has been set at %dy-time-en%.";
                 }
 
                 // Reemplazar la variable %time% con el momento del día actual
-                timeSetMessage = timeSetMessage.replace("%dy-time%", "Night");
+                timeSetMessage = timeSetMessage.replace("%dy-time-en%", "Night");
+                timeSetMessage = timeSetMessage.replace("%dy-time-es%", "Noche");
 
                 // Enviar mensaje de confirmación
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', DynamicAtmosphere.prefix + " " + timeSetMessage));
