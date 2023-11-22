@@ -45,10 +45,10 @@ public class VoteCommand implements CommandExecutor, Listener {
         this.playerVotes = new HashMap<>();
         this.voteCount = new HashMap<>();
         this.voteCooldown = new HashMap<>();
-        Bukkit.getPluginManager().registerEvents(this, plugin);
 
         // Cargar configuración al inicializar
         loadConfiguration();
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     private void loadConfiguration() {
@@ -60,10 +60,10 @@ public class VoteCommand implements CommandExecutor, Listener {
         voteThreshold = config.getInt("vote-threshold", 5);
 
         // Leer mensajes de configuración
-        voteSuccessMessage = ChatColor.translateAlternateColorCodes('&', config.getString("vote-success", "&aHas votado por %weather%!"));
-        cooldownMessage = ChatColor.translateAlternateColorCodes('&', config.getString("cooldown-message", "&cDebes esperar %time% segundos antes de volver a votar."));
-        votesLeftMessage = ChatColor.translateAlternateColorCodes('&', config.getString("votes-left", "&eFaltan %votes% votos para cambiar el clima."));
-        unknownWeatherMessage = ChatColor.translateAlternateColorCodes('&', config.getString("unknown-weather", "&cTipo de clima no reconocido: %weather%"));
+        voteSuccessMessage = ChatColor.translateAlternateColorCodes('&', config.getString("vote-success", "&a&aYou have voted for %weather%!"));
+        cooldownMessage = ChatColor.translateAlternateColorCodes('&', config.getString("cooldown-message", "&cYou must wait %time% seconds before voting again."));
+        votesLeftMessage = ChatColor.translateAlternateColorCodes('&', config.getString("votes-left", "&eLack of %votes% votes to change the weather."));
+        unknownWeatherMessage = ChatColor.translateAlternateColorCodes('&', config.getString("unknown-weather", "&cUnrecognized climate type: %weather%"));
     }
 
     @Override
