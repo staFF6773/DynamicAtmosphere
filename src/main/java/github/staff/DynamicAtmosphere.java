@@ -4,8 +4,10 @@ import commands.*;
 import manager.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import utils.ChatUtils;
 
@@ -63,6 +65,7 @@ public final class DynamicAtmosphere extends JavaPlugin implements Listener {
         this.getCommand("Rain").setExecutor(new rain(this));
         this.getCommand("Sun").setExecutor(new Sun(this));
         this.getCommand("Storm").setExecutor(new Storm(this));
+        this.getCommand("Vote").setExecutor(new VoteCommand(this));
     }
 
     public void registerEvents() {
@@ -71,4 +74,19 @@ public final class DynamicAtmosphere extends JavaPlugin implements Listener {
     public static DynamicAtmosphere getplugin() {
         return plugin;
     }
+
+    public Material getMaterialForWeather(String voteType) {
+
+        switch (voteType.toLowerCase()) {
+            case "sunny":
+                return Material.SUNFLOWER;  // Cambia esto al material que desees para clima despejado
+            case "rainy":
+                return Material.WATER_BUCKET;  // Cambia esto al material que desees para lluvia
+            case "stormy":
+                return Material.TRIPWIRE_HOOK;  // Cambia esto al material que desees para tormenta
+            default:
+                return Material.STONE;  // Material por defecto o error
+        }
+    }
+
 }
