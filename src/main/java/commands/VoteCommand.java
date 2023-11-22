@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,16 +30,40 @@ public class VoteCommand implements CommandExecutor, Listener {
     private final Map<String, Integer> voteCount;
     private final Map<UUID, Long> voteCooldown;
 
-    private final int voteThreshold = 1;
+    // Variables configurables
+    private int cooldownTime;
+    private int voteThreshold;
 
-    private final long cooldownTime = 60 * 1000; // Tiempo de cooldown en milisegundos (60 segundos en este ejemplo)
+    private String voteSuccessMessage;
+    private String cooldownMessage;
+    private String votesLeftMessage;
+    private String unknownWeatherMessage;
+
+
     public VoteCommand(DynamicAtmosphere plugin) {
         this.plugin = plugin;
         this.playerVotes = new HashMap<>();
         this.voteCount = new HashMap<>();
         this.voteCooldown = new HashMap<>();
-        // Registra el Listener en el constructor para manejar los eventos
         Bukkit.getPluginManager().registerEvents(this, plugin);
+
+        // Cargar configuración al inicializar
+        loadConfiguration();
+    }
+
+    private void loadConfiguration() {
+        // Obtener el nodo de configuración
+        ConfigurationSection config = plugin.getConfig();
+
+        // Leer valores de configuración
+        cooldownTime = config.getInt("cooldown-time", 60) * 1000; // Convertir a milisegundos
+        voteThreshold = config.getInt("vote-threshold", 5);
+
+        // Leer mensajes de configuración
+        voteSuccessMessage = ChatColor.translateAlternateColorCodes('&', config.getString("vote-success", "&aHas votado por %weather%!"));
+        cooldownMessage = ChatColor.translateAlternateColorCodes('&', config.getString("cooldown-message", "&cDebes esperar %time% segundos antes de volver a votar."));
+        votesLeftMessage = ChatColor.translateAlternateColorCodes('&', config.getString("votes-left", "&eFaltan %votes% votos para cambiar el clima."));
+        unknownWeatherMessage = ChatColor.translateAlternateColorCodes('&', config.getString("unknown-weather", "&cTipo de clima no reconocido: %weather%"));
     }
 
     @Override
@@ -125,7 +150,7 @@ public class VoteCommand implements CommandExecutor, Listener {
                 // Verificar el cooldown
                 if (voteCooldown.containsKey(playerUUID) && System.currentTimeMillis() - voteCooldown.get(playerUUID) < cooldownTime) {
                     long timeLeft = (cooldownTime - (System.currentTimeMillis() - voteCooldown.get(playerUUID))) / 1000;
-                    player.sendMessage(ChatColor.RED + "Debes esperar " + timeLeft + " segundos antes de volver a votar.");
+                    player.sendMessage(cooldownMessage.replace("%time%", String.valueOf(timeLeft)));
                     return;
                 }
 
@@ -136,7 +161,7 @@ public class VoteCommand implements CommandExecutor, Listener {
                     String voteType = getVoteTypeFromItem(clickedItem);
                     weatherVote.setVoteType(voteType);
 
-                    player.sendMessage(ChatColor.GREEN + "Has votado por " + voteType + "!");
+                    player.sendMessage(voteSuccessMessage.replace("%weather%", voteType));
                     int currentVotes = voteCount.getOrDefault(voteType, 0) + 1;
                     voteCount.put(voteType, currentVotes);
 
@@ -150,7 +175,7 @@ public class VoteCommand implements CommandExecutor, Listener {
                         executeWeatherCommand(player, voteType);
                     } else {
                         int votesLeft = voteThreshold - currentVotes;
-                        player.sendMessage(ChatColor.YELLOW + "Faltan " + votesLeft + " votos para cambiar el clima.");
+                        player.sendMessage(votesLeftMessage.replace("%votes%", String.valueOf(votesLeft)));
                     }
                 }
 
@@ -189,7 +214,7 @@ public class VoteCommand implements CommandExecutor, Listener {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "weather thunder");
                 break;
             default:
-                player.sendMessage(ChatColor.RED + "Tipo de clima no reconocido: " + voteType);
+                player.sendMessage(unknownWeatherMessage.replace("%weather%", voteType));
         }
     }
 }
