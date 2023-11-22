@@ -25,26 +25,18 @@ public class Day implements CommandExecutor {
                 // Obtener el mundo actual
                 World world = ((Player) sender).getWorld();
 
-                long time = world.getTime();
-                String timeOfDay;
-
-                if (time >= 0 && time < 12000){
-                    timeOfDay = "Day";
-                } else {
-                    timeOfDay = "Night";
-
-                    world.setTime(0);
-                }
+                world.setTime(0);
 
                 // Obtener el mensaje de tiempo del día desde la configuración
                 String timeSetMessage = plugin.getConfig().getString("time-set-message");
                 // Si no se encuentra el mensaje en la configuración, usa uno por defecto
                 if (timeSetMessage == null) {
-                    timeSetMessage = "&aThe time of day has been set at %dy-time%%.";
+                    timeSetMessage = "&aThe time of day has been set at %dy-time-en%.";
                 }
 
                 // Reemplazar la variable %time% con el momento del día actual
-                timeSetMessage = timeSetMessage.replace("%dy-time%", timeOfDay);
+                timeSetMessage = timeSetMessage.replace("%dy-time-en%", "Day");
+                timeSetMessage = timeSetMessage.replace("%dy-time-es%", "Dia");
 
                 // Enviar mensaje de confirmación
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', DynamicAtmosphere.prefix + " " + timeSetMessage));
