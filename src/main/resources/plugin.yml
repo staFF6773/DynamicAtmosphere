@@ -1,4 +1,4 @@
-name: DynamicAtmosphere
+name: DynamicAt
 version: '${project.version}'
 main: github.staff.DynamicAtmosphere
 api-version: '1.13'
@@ -6,11 +6,60 @@ author: Not_staff
 website: https://sstudiosdev.github.io/
 
 commands:
+
   reload:
     description: Reload the config.yml configuration
     usage: /dy reload
 
+  Day:
+    description: puts of day
+    usage: /dy day
+
+  Night:
+    description: puts of night
+    usage: /dy night
+
+  Rain:
+    description: weather changes to rainy
+    usage: /dy rain
+
+  Sun:
+    description: sets sunny weather
+    usage: /dy sun
+
+  Storm:
+    description: Weather conditions are stormy
+    usage: /dy storm
+
+  vote:
+    description: Vote for the next weather
+    usage: /<command>
+
 permissions:
   dynamicAt.reload:
-    description: It gives you the permission to execute the /eb reload command.
+    description: It gives you the permission to execute the /dy reload command.
+    default: false
+
+  dynamicAt.day:
+    description: puts the current world where it was executed in the daytime
+    default: false
+
+  dynamicAt.night:
+    description: puts the current world where it was executed in the daytime
+    default: false
+
+  dynamicAt.rain:
+    description: weather changes to rainy
+    default: false
+
+  dynamicAt.sun:
+    description: sets sunny weather
+    default: false
+
+  dynamicAt.storm:
+    description: weather changes to rainy
+    default: false
+
+  dynamicAt.vote:
+    description: Vote for the next weather
     default: false
