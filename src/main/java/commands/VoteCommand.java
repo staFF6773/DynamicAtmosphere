@@ -17,8 +17,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +37,8 @@ public class VoteCommand implements CommandExecutor, Listener {
     private String votesLeftMessage;
     private String unknownWeatherMessage;
 
+    private String voteMenuTitle;
+    private Map<String, VoteOption> voteMenuConfig;
 
     public VoteCommand(DynamicAtmosphere plugin) {
         this.plugin = plugin;
@@ -64,10 +64,34 @@ public class VoteCommand implements CommandExecutor, Listener {
         cooldownMessage = ChatColor.translateAlternateColorCodes('&', config.getString("cooldown-message", "&cYou must wait %time% seconds before voting again."));
         votesLeftMessage = ChatColor.translateAlternateColorCodes('&', config.getString("votes-left", "&eLack of %votes% votes to change the weather."));
         unknownWeatherMessage = ChatColor.translateAlternateColorCodes('&', config.getString("unknown-weather", "&cUnrecognized climate type: %weather%"));
+
+        // Leer configuración del menú de votación
+        ConfigurationSection voteMenuSection = config.getConfigurationSection("vote-menu");
+        if (voteMenuSection != null) {
+            voteMenuTitle = ChatColor.translateAlternateColorCodes('&', voteMenuSection.getString("title", "&6Choose the weather"));
+            voteMenuConfig = new HashMap<>();
+
+            for (String voteType : voteMenuSection.getKeys(false)) {
+                ConfigurationSection optionSection = voteMenuSection.getConfigurationSection(voteType);
+                if (optionSection != null) {
+                    String displayName = ChatColor.translateAlternateColorCodes('&', optionSection.getString("display-name", ""));
+                    Material material = Material.matchMaterial(optionSection.getString("material", "STONE"));
+                    int slot = optionSection.getInt("slot", 0);
+
+                    if (displayName.isEmpty() || material == null || slot < 0 || slot > 8) {
+                        // Log or handle invalid configuration
+                        continue;
+                    }
+
+                    voteMenuConfig.put(voteType, new VoteOption(displayName, material, slot));
+                }
+            }
+        }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        plugin.reloadConfig();
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
@@ -101,22 +125,25 @@ public class VoteCommand implements CommandExecutor, Listener {
     }
 
     private Inventory createVoteMenu(Player player) {
-        Inventory voteMenu = Bukkit.createInventory(player, 9, "Votación de Clima");
+        Inventory voteMenu = Bukkit.createInventory(player, 9, voteMenuTitle);
 
         // Agregar opciones al menú
-        ItemStack sunnyItem = createVoteItem("Despejado", "sunny");
-        ItemStack rainyItem = createVoteItem("Lluvia", "rainy");
-        ItemStack stormyItem = createVoteItem("Tormenta", "stormy");
+        for (Map.Entry<String, VoteOption> entry : voteMenuConfig.entrySet()) {
+            VoteOption voteOption = entry.getValue();
+            ItemStack voteItem = createVoteItem(voteOption.getDisplayName(), voteOption.getMaterial(), entry.getKey());
 
-        voteMenu.setItem(2, sunnyItem);
-        voteMenu.setItem(4, rainyItem);
-        voteMenu.setItem(6, stormyItem);
+            if (voteOption.getSlot() >= 0 && voteOption.getSlot() < 9) {
+                voteMenu.setItem(voteOption.getSlot(), voteItem);
+            } else {
+                // Log or handle invalid slot
+            }
+        }
 
         return voteMenu;
     }
 
-    private ItemStack createVoteItem(String displayName, String voteType) {
-        ItemStack item = new ItemStack(plugin.getMaterialForWeather(voteType));
+    private ItemStack createVoteItem(String displayName, Material material, String voteType) {
+        ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         meta.setDisplayName(ChatColor.GREEN + displayName);
@@ -125,22 +152,9 @@ public class VoteCommand implements CommandExecutor, Listener {
         return item;
     }
 
-    // Clase interna para representar el voto de un jugador
-    private static class WeatherVote {
-        private String voteType;
-
-        public String getVoteType() {
-            return voteType;
-        }
-
-        public void setVoteType(String voteType) {
-            this.voteType = voteType;
-        }
-    }
-
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Votación de Clima")) {
+        if (event.getView().getTitle().equals(voteMenuTitle)) {
             event.setCancelled(true);
 
             if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
@@ -199,7 +213,6 @@ public class VoteCommand implements CommandExecutor, Listener {
         return "";
     }
 
-
     private void executeWeatherCommand(Player player, String voteType) {
         World world = player.getWorld();
 
@@ -215,6 +228,42 @@ public class VoteCommand implements CommandExecutor, Listener {
                 break;
             default:
                 player.sendMessage(unknownWeatherMessage.replace("%weather%", voteType));
+        }
+    }
+
+    private static class VoteOption {
+        private final String displayName;
+        private final Material material;
+        private final int slot;
+
+        public VoteOption(String displayName, Material material, int slot) {
+            this.displayName = displayName;
+            this.material = material;
+            this.slot = slot;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public Material getMaterial() {
+            return material;
+        }
+
+        public int getSlot() {
+            return slot;
+        }
+    }
+
+    private static class WeatherVote {
+        private String voteType;
+
+        public String getVoteType() {
+            return voteType;
+        }
+
+        public void setVoteType(String voteType) {
+            this.voteType = voteType;
         }
     }
 }
